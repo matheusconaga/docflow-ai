@@ -25,7 +25,7 @@ async def upload_document(
 
     db: Session = SessionLocal()
 
-    document = DocumentService.upload_document(
+    document = await DocumentService.upload_document(
         db=db,
         file=file
     )
