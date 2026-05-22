@@ -1,8 +1,14 @@
 import uuid
 
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import (
+    Column,
+    String,
+    DateTime,
+    Text,
+    func
+)
+
 from sqlalchemy.dialects.postgresql import UUID
-from datetime import datetime
 
 from app.db.database import Base
 
@@ -23,9 +29,19 @@ class Document(Base):
         nullable=False
     )
 
+    stored_filename = Column(
+        String,
+        nullable=False
+    )
+
     file_path = Column(
         String,
         nullable=False
+    )
+
+    extracted_text = Column(
+        Text,
+        nullable=True
     )
 
     status = Column(
@@ -35,5 +51,5 @@ class Document(Base):
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow
+        default=func.now()
     )

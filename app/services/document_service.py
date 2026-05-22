@@ -1,5 +1,4 @@
 import os
-import shutil
 import uuid
 
 from pathlib import Path
@@ -10,7 +9,6 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
-
 from app.models.document import Document
 
 
@@ -110,6 +108,7 @@ class DocumentService:
         # CREATE DOCUMENT RECORD
         document = Document(
             filename=file.filename,
+            stored_filename=unique_filename,
             file_path=file_path,
             status="uploaded"
         )

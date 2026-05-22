@@ -1,11 +1,17 @@
+from uuid import UUID
 from fastapi import APIRouter
 from fastapi import UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.db.database import SessionLocal
 
+# DOCUMENTS SCHEMAS
 from app.schemas.document_schema import DocumentResponse
+from app.schemas.extract_document_schema import ExtractDocumentResponse
+
+# DOCUMENTS SERVICES
 from app.services.document_service import DocumentService
+from app.services.extract_document_service import ExtractDocumentService
 
 
 router = APIRouter(
@@ -28,6 +34,28 @@ async def upload_document(
     document = await DocumentService.upload_document(
         db=db,
         file=file
+    )
+
+    return document
+
+# ROUTE FOR EXTRACTING TEXT FROM A DOCUMENT, RECEIVING THE DOCUMENT ID, EXTRACTING THE TEXT USING THE EXTRACTOR MODULE, 
+# UPDATING THE DOCUMENT RECORD IN THE DATABASE WITH THE EXTRACTED TEXT AND RETURNING THE UPDATED DOCUMENT AS RESPONSE
+
+@router.post(
+    "/{document_id}/extract",
+    response_model=ExtractDocumentResponse
+)
+def extract_document(
+    document_id: UUID
+):
+
+    db: Session = SessionLocal()
+
+    document = (
+        ExtractDocumentService.extract_document(
+            db=db,
+            document_id=document_id
+        )
     )
 
     return document
