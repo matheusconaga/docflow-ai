@@ -1,0 +1,115 @@
+# =========================
+# ENVIRONMENT
+# =========================
+.env
+.env.*
+venv/
+.venv/
+
+
+# =========================
+# PYTHON
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.so
+*.pyd
+*.dll
+*.dylib
+
+.python-version
+
+
+# =========================
+# BUILD / DIST
+# =========================
+build/
+dist/
+*.egg-info/
+*.egg
+
+
+# =========================
+# TESTS / COVERAGE
+# =========================
+.pytest_cache/
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+*.cover
+
+
+# =========================
+# DATABASES
+# =========================
+*.db
+*.sqlite3
+
+
+# =========================
+# LOGS
+# =========================
+*.log
+*.out
+*.err
+*.pid
+
+
+# =========================
+# IDEs / EDITORS
+# =========================
+.idea/
+.vscode/
+
+*.swp
+*.swo
+
+
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
+
+
+# =========================
+# TEMP FILES
+# =========================
+*.tmp
+*.bak
+*.temp
+
+
+# =========================
+# UPLOADS / STORAGE
+# =========================
+app/storage/uploads/*
+app/storage/processed/*
+
+# KEEP FOLDERS
+!app/storage/uploads/.gitkeep
+!app/storage/processed/.gitkeep
+
+
+# =========================
+# DOCKER
+# =========================
+docker-data/
+postgres-data/
+redis-data/
+
+
+# =========================
+# JUPYTER
+# =========================
+.ipynb_checkpoints/
+
+
+# =========================
+# MISC
+# =========================
+*.zip
+*.tar.gz
