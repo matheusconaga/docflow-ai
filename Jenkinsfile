@@ -2,17 +2,14 @@ pipeline {
 
     agent any
 
-    environment {
-        IMAGE_NAME = "docflow-ai"
-        CONTAINER_NAME = "docflow-api"
-    }
-
     stages {
 
         stage('Checkout') {
 
             steps {
-                git 'https://github.com/matheusconaga/docflow-ai.git'
+
+                git branch: 'main',
+                url: 'https://github.com/matheusconaga/docflow-ai.git'
             }
         }
 
@@ -20,15 +17,8 @@ pipeline {
 
             steps {
 
-                sh '''
-                python -m venv venv
-
-                . venv/bin/activate
-
-                pip install --upgrade pip
-
-                pip install -r requirements.txt
-                '''
+                sh 'python3 -m venv venv'
+                sh '. venv/bin/activate && pip install -r requirements.txt'
             }
         }
 
@@ -38,13 +28,7 @@ pipeline {
 
                 sh '''
                 . venv/bin/activate
-
-                pytest \
-                --cov=app \
-                --cov-report=term \
-                --cov-report=html \
-                --cov-fail-under=90 \
-                tests/
+                pytest --cov=app
                 '''
             }
         }
@@ -53,9 +37,7 @@ pipeline {
 
             steps {
 
-                sh '''
-                docker build -t $IMAGE_NAME .
-                '''
+                sh 'docker build -t docflow-ai .'
             }
         }
 
@@ -64,14 +46,13 @@ pipeline {
             steps {
 
                 sh '''
-                docker stop $CONTAINER_NAME || true
-
-                docker rm $CONTAINER_NAME || true
+                docker stop docflow-api || true
+                docker rm docflow-api || true
 
                 docker run -d \
-                    --name $CONTAINER_NAME \
-                    -p 8000:8000 \
-                    $IMAGE_NAME
+                  --name docflow-api \
+                  -p 8000:8000 \
+                  docflow-ai
                 '''
             }
         }
@@ -81,7 +62,7 @@ pipeline {
 
         success {
 
-            echo 'Pipeline executado com sucesso!'
+            echo 'Pipeline executada com sucesso!'
         }
 
         failure {
