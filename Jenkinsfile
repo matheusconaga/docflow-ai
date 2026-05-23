@@ -2,6 +2,10 @@ pipeline {
 
     agent any
 
+    environment {
+        DATABASE_URL = 'sqlite:///./test.db'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -18,7 +22,11 @@ pipeline {
             steps {
 
                 sh 'python3 -m venv venv'
-                sh '. venv/bin/activate && pip install -r requirements.txt'
+
+                sh '''
+                . venv/bin/activate
+                pip install -r requirements.txt
+                '''
             }
         }
 
