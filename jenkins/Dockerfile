@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     git
 
-RUN usermod -aG docker jenkins
+RUN docker --version || true
+
+RUN usermod -aG docker jenkins || true
 
 USER jenkins
