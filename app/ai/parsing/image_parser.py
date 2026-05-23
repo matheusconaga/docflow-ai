@@ -1,10 +1,11 @@
 from PIL import Image
 import pytesseract
+import shutil
 
-pytesseract.pytesseract.tesseract_cmd = (
-    r"C:\Users\Familia\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
-)
+tesseract_path = shutil.which("tesseract")
 
+if tesseract_path:
+    pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
 class ImageParser:
 
