@@ -14,6 +14,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -28,13 +29,25 @@ pipeline {
             }
         }
 
+        stage('Init Database') {
+            steps {
+                sh '''
+                docker run --rm \
+                -e DATABASE_URL=$DATABASE_URL \
+                $IMAGE_NAME \
+                python -m app.db.create_tables
+                '''
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 sh '''
                 docker run --rm \
                   --entrypoint pytest \
                   -e DATABASE_URL=$DATABASE_URL \
-                  $IMAGE_NAME --cov=app -v
+                  $IMAGE_NAME \
+                  --cov=app -v
                 '''
             }
         }
@@ -58,6 +71,7 @@ pipeline {
         success {
             echo 'Pipeline executada com sucesso 🚀'
         }
+
         failure {
             echo 'Pipeline falhou ❌'
         }
