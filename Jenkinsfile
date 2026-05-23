@@ -5,21 +5,17 @@ pipeline {
     environment {
         DATABASE_URL = 'sqlite:///./test.db'
         IMAGE_NAME = "docflow-ai:${BUILD_NUMBER}"
+        IMAGE_LATEST = "docflow-ai:latest"
         CONTAINER_NAME = "docflow-api"
     }
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                url: 'https://github.com/matheusconaga/docflow-ai.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh '''
+                docker build -t $IMAGE_NAME -t $IMAGE_LATEST .
+                '''
             }
         }
 
@@ -43,7 +39,7 @@ pipeline {
                 docker run -d \
                   --name $CONTAINER_NAME \
                   -p 8000:8000 \
-                  $IMAGE_NAME
+                  $IMAGE_LATEST
                 '''
             }
         }
