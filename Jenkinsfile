@@ -1,6 +1,10 @@
 pipeline {
-
     agent any
+
+    options {
+        skipDefaultCheckout()
+        disableConcurrentBuilds()
+    }
 
     environment {
         DATABASE_URL = 'sqlite:///./test.db'
@@ -10,6 +14,11 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -23,9 +32,9 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
+                  --entrypoint pytest \
                   -e DATABASE_URL=$DATABASE_URL \
-                  $IMAGE_NAME \
-                  pytest --cov=app -v
+                  $IMAGE_NAME --cov=app -v
                 '''
             }
         }
@@ -49,7 +58,6 @@ pipeline {
         success {
             echo 'Pipeline executada com sucesso 🚀'
         }
-
         failure {
             echo 'Pipeline falhou ❌'
         }
