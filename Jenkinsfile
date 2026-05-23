@@ -44,10 +44,9 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
-                  --entrypoint pytest \
-                  -e DATABASE_URL=$DATABASE_URL \
-                  $IMAGE_NAME \
-                  --cov=app -v
+                -e DATABASE_URL=$DATABASE_URL \
+                $IMAGE_NAME \
+                sh -c "python -m app.db.create_tables && pytest --cov=app -v"
                 '''
             }
         }

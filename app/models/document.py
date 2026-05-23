@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from sqlalchemy import (
     Column,
@@ -7,8 +8,6 @@ from sqlalchemy import (
     Text,
     func
 )
-
-from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.database import Base
 
@@ -19,9 +18,9 @@ class Document(Base):
     __tablename__ = "documents"
 
     id = Column(
-        UUID(as_uuid=True),
+        String,
         primary_key=True,
-        default=uuid.uuid4
+        default=lambda: str(uuid.uuid4())
     )
 
     filename = Column(
@@ -50,6 +49,6 @@ class Document(Base):
     )
 
     created_at = Column(
-        DateTime,
-        default=func.now()
+        DateTime, 
+        default=datetime.utcnow
     )
