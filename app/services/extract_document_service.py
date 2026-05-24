@@ -1,6 +1,6 @@
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import cast, String 
 from app.models.document import Document
 from app.ai.parsing.extractor import Extractor
 
@@ -13,16 +13,16 @@ class ExtractDocumentService:
         document_id: str
     ):
 
+        # ADD CAST FOR NEON RECOGNIZE ID=STR LIKE VIABLE
         document = (
             db.query(Document)
             .filter(
-                Document.id == document_id
+                cast(Document.id, String) == cast(document_id, String)
             )
             .first()
         )
 
         if not document:
-
             raise HTTPException(
                 status_code=404,
                 detail="Document not found"
@@ -33,13 +33,10 @@ class ExtractDocumentService:
         )
 
         document.extracted_text = extracted_text
-
         document.status = "processed"
         
         db.add(document)
-
         db.commit()
-
         db.refresh(document)
 
         return document

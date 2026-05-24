@@ -40,7 +40,7 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
-                  -e DATABASE_URL=$DATABASE_URL \
+                  -e DATABASE_URL="$DATABASE_URL" \
                   $IMAGE_NAME \
                   pytest --cov=app -v
                 '''
@@ -54,10 +54,10 @@ pipeline {
                 docker rm $CONTAINER_NAME || true
 
                 docker run -d \
-                  --restart unless-stopped \
                   --name $CONTAINER_NAME \
                   -p 8000:8000 \
-                  -e DATABASE_URL=$DATABASE_URL \
+                  -e DATABASE_URL="$DATABASE_URL" \
+                  -v $(pwd)/app/storage/uploads:/app/app/storage/uploads \
                   $IMAGE_LATEST
                 '''
             }
@@ -72,10 +72,6 @@ pipeline {
 
         failure {
             echo 'Pipeline falhou ❌'
-        }
-
-        always {
-            sh 'docker image prune -f || true'
         }
     }
 }

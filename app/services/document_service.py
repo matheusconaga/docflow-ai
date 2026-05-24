@@ -13,7 +13,8 @@ from app.models.document import Document
 
 
 # DIRECTORY RESPONSIBLE FOR STORING UPLOADED FILES
-UPLOAD_DIR = "app/storage/uploads"
+BASE_DIR = Path(__file__).resolve().parent.parent
+UPLOAD_DIR = BASE_DIR / "storage" / "uploads"
 
 
 class DocumentService:

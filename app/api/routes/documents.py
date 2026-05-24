@@ -1,8 +1,7 @@
-from fastapi import APIRouter
-from fastapi import UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Depends 
 from sqlalchemy.orm import Session
 
-from app.db.database import SessionLocal
+from app.db.database import get_db 
 
 # DOCUMENTS SCHEMAS
 from app.schemas.document_schema import DocumentResponse
@@ -25,11 +24,9 @@ router = APIRouter(
     response_model=DocumentResponse
 )
 async def upload_document(
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db) 
 ):
-
-    db: Session = SessionLocal()
-
     document = await DocumentService.upload_document(
         db=db,
         file=file
@@ -45,11 +42,9 @@ async def upload_document(
     response_model=ExtractDocumentResponse
 )
 def extract_document(
-    document_id: str
+    document_id: str,
+    db: Session = Depends(get_db)
 ):
-
-    db: Session = SessionLocal()
-
     document = (
         ExtractDocumentService.extract_document(
             db=db,
