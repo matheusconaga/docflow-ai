@@ -1,10 +1,9 @@
 from pydantic import BaseModel, ConfigDict
-from uuid import UUID
 from datetime import datetime
 
 class ExtractDocumentResponse(BaseModel):
 
-    id: UUID
+    id: str
     filename: str
     extracted_text: str | None
     status: str

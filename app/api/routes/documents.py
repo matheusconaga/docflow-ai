@@ -1,4 +1,3 @@
-from uuid import UUID
 from fastapi import APIRouter
 from fastapi import UploadFile, File
 from sqlalchemy.orm import Session
@@ -46,7 +45,7 @@ async def upload_document(
     response_model=ExtractDocumentResponse
 )
 def extract_document(
-    document_id: UUID
+    document_id: str
 ):
 
     db: Session = SessionLocal()

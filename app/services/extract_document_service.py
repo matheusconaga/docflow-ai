@@ -1,4 +1,3 @@
-from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -11,7 +10,7 @@ class ExtractDocumentService:
     @staticmethod
     def extract_document(
         db: Session,
-        document_id: UUID
+        document_id: str
     ):
 
         document = (

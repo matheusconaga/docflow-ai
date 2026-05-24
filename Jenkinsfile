@@ -1,4 +1,5 @@
 pipeline {
+
     agent any
 
     options {
@@ -7,9 +8,14 @@ pipeline {
     }
 
     environment {
-        DATABASE_URL = 'sqlite:///./test.db'
+
+        // Jenkins Credentials -> Secret text
+        // ID: neon-database-url
+        DATABASE_URL = credentials('neon-database-url')
+
         IMAGE_NAME = "docflow-ai:${BUILD_NUMBER}"
         IMAGE_LATEST = "docflow-ai:latest"
+
         CONTAINER_NAME = "docflow-api"
     }
 
@@ -24,7 +30,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t $IMAGE_NAME -t $IMAGE_LATEST .
+                docker build \
+                  -t $IMAGE_NAME \
+                  -t $IMAGE_LATEST \
+                  .
                 '''
             }
         }
@@ -33,9 +42,9 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
-                -e DATABASE_URL=$DATABASE_URL \
-                $IMAGE_NAME \
-                python -m app.db.create_tables
+                  -e DATABASE_URL="$DATABASE_URL" \
+                  $IMAGE_NAME \
+                  python -m app.db.create_tables
                 '''
             }
         }
@@ -44,9 +53,9 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
-                -e DATABASE_URL=$DATABASE_URL \
-                $IMAGE_NAME \
-                sh -c "python -m app.db.create_tables && pytest --cov=app -v"
+                  -e DATABASE_URL="$DATABASE_URL" \
+                  $IMAGE_NAME \
+                  pytest --cov=app -v
                 '''
             }
         }
@@ -60,6 +69,7 @@ pipeline {
                 docker run -d \
                   --name $CONTAINER_NAME \
                   -p 8000:8000 \
+                  -e DATABASE_URL="$DATABASE_URL" \
                   $IMAGE_LATEST
                 '''
             }
@@ -67,12 +77,17 @@ pipeline {
     }
 
     post {
+
         success {
             echo 'Pipeline executada com sucesso 🚀'
         }
 
         failure {
             echo 'Pipeline falhou ❌'
+        }
+
+        always {
+            sh 'docker image prune -f || true'
         }
     }
 }

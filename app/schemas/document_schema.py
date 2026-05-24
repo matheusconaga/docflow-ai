@@ -1,12 +1,11 @@
 from pydantic import BaseModel, ConfigDict
-from uuid import UUID
 from datetime import datetime
 
 
 # SCHEMA FOR GUARANTEEING THE RESPONSE OF DOCUMENTS ENDPOINTS
 class DocumentResponse(BaseModel):
 
-    id: UUID
+    id: str
     filename: str
     file_path: str
     status: str
