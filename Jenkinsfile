@@ -9,8 +9,6 @@ pipeline {
 
     environment {
 
-        // Jenkins Credentials -> Secret text
-        // ID: neon-database-url
         DATABASE_URL = credentials('neon-database-url')
 
         IMAGE_NAME = "docflow-ai:${BUILD_NUMBER}"
@@ -38,22 +36,11 @@ pipeline {
             }
         }
 
-        stage('Init Database') {
-            steps {
-                sh '''
-                docker run --rm \
-                  -e DATABASE_URL="$DATABASE_URL" \
-                  $IMAGE_NAME \
-                  python -m app.db.create_tables
-                '''
-            }
-        }
-
         stage('Run Tests') {
             steps {
                 sh '''
                 docker run --rm \
-                  -e DATABASE_URL="$DATABASE_URL" \
+                  -e DATABASE_URL=$DATABASE_URL \
                   $IMAGE_NAME \
                   pytest --cov=app -v
                 '''
@@ -67,9 +54,10 @@ pipeline {
                 docker rm $CONTAINER_NAME || true
 
                 docker run -d \
+                  --restart unless-stopped \
                   --name $CONTAINER_NAME \
                   -p 8000:8000 \
-                  -e DATABASE_URL="$DATABASE_URL" \
+                  -e DATABASE_URL=$DATABASE_URL \
                   $IMAGE_LATEST
                 '''
             }
