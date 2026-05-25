@@ -47,6 +47,6 @@ jobs:
 
     steps:
 
-      - name: Deploy placeholder
+      - name: Trigger Render Deploy
         run: |
-          echo "Deploy stage"
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
