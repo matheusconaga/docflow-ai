@@ -10,6 +10,7 @@ pipeline {
     environment {
 
         DATABASE_URL = credentials('neon-database-url')
+        DATABASE_TEST_URL = credentials('neon-test-database-url')
 
         IMAGE_NAME = "docflow-ai:${BUILD_NUMBER}"
         IMAGE_LATEST = "docflow-ai:latest"
@@ -40,7 +41,7 @@ pipeline {
             steps {
                 sh '''
                 docker run --rm \
-                  -e DATABASE_URL="$DATABASE_URL" \
+                  -e DATABASE_URL="$DATABASE_TEST_URL" \
                   $IMAGE_NAME \
                   pytest --cov=app -v
                 '''

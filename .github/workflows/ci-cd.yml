@@ -15,9 +15,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
     steps:
 
       - name: Checkout repository
@@ -33,7 +30,7 @@ jobs:
       - name: Run tests
         run: |
           docker run --rm \
-            -e DATABASE_URL="$DATABASE_URL" \
+            -e DATABASE_URL="${{ secrets.DATABASE_TEST_URL }}" \
             docflow-ai \
             pytest --cov=app -v
 
