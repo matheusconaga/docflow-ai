@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.routes.documents import router as documents_router
 
 app = FastAPI(
@@ -13,10 +14,9 @@ app = FastAPI(
 # HEALTHCHECK
 @app.get("/health")
 def health():
-    return {
-        "status": "ok"
-    }
-    
+    return {"status": "ok"}
+
+
 # REGISTERED ROUTES
 app.include_router(documents_router)
 

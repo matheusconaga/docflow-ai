@@ -1,9 +1,8 @@
-import fitz
-from PIL import Image
-import pytesseract
 import shutil
 
-
+import fitz
+import pytesseract
+from PIL import Image
 
 tesseract_path = shutil.which("tesseract")
 
@@ -14,9 +13,7 @@ if tesseract_path:
 class PDFParser:
 
     @staticmethod
-    def extract_text(
-        file_path: str
-    ):
+    def extract_text(file_path: str):
 
         text = ""
 
@@ -31,47 +28,30 @@ class PDFParser:
 
                 text += page_text
 
-            # SCANNED PDF 
+            # SCANNED PDF
             else:
 
                 # HIGH RESOLUTION
                 matrix = fitz.Matrix(3, 3)
 
-                pix = page.get_pixmap(
-                    matrix=matrix
-                )
+                pix = page.get_pixmap(matrix=matrix)
 
-                image = Image.frombytes(
-                    "RGB",
-                    [pix.width, pix.height],
-                    pix.samples
-                )
+                image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
                 # GRAYSCALE
                 image = image.convert("L")
 
                 # BINARIZATION
-                image = image.point(
-                    lambda x: 0 if x < 140 else 255,
-                    "1"
-                )
+                image = image.point(lambda x: 0 if x < 140 else 255, "1")
 
                 try:
 
-                    ocr_text = (
-                        pytesseract.image_to_string(
-                            image,
-                            lang="por"
-                        )
-                    )
+                    ocr_text = pytesseract.image_to_string(image, lang="por")
 
-                except:
+                except Exception as error:
 
-                    ocr_text = (
-                        pytesseract.image_to_string(
-                            image
-                        )
-                    )
+                    ocr_text = pytesseract.image_to_string(image)
+                    print(error)
 
                 text += ocr_text
 

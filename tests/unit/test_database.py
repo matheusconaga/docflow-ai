@@ -1,10 +1,6 @@
 from sqlalchemy import text
 
-from app.db.database import (
-    engine,
-    SessionLocal,
-    get_db
-)
+from app.db.database import SessionLocal, engine, get_db
 
 
 def test_database_connection():
@@ -20,9 +16,7 @@ def test_database_session():
 
     db = SessionLocal()
 
-    result = db.execute(
-        text("SELECT 1")
-    )
+    result = db.execute(text("SELECT 1"))
 
     assert result.scalar() == 1
 

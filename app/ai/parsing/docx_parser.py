@@ -1,18 +1,23 @@
+from fastapi import HTTPException
 from docx import Document
+
 
 # PARSING MODULE FOR DOCX FILES
 class DOCXParser:
-
     @staticmethod
-    def extract_text(
-        file_path: str
-    ):
+    def extract_text(file_path: str):
 
-        doc = Document(file_path)
+        try:
 
-        text = "\n".join(
-            paragraph.text
-            for paragraph in doc.paragraphs
-        )
+            doc = Document(file_path)
 
-        return text
+            text = "\n".join(paragraph.text for paragraph in doc.paragraphs)
+
+            return text
+
+        except Exception as error:
+
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error parsing DOCX file: {str(error)}",
+            )
