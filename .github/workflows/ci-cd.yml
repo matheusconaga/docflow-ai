@@ -78,12 +78,12 @@ jobs:
 
     steps:
 
-      # WAIT DEPLOY
       - name: Wait deployment
-        run: sleep 40
+        run: sleep 120
 
-      # HEALTHCHECK
       - name: API Health Check
         run: |
-          curl --fail --retry 5 --retry-delay 5 \
+          curl --fail \
+          --retry 10 \
+          --retry-delay 10 \
           https://docflow-ai-lj3a.onrender.com/health
