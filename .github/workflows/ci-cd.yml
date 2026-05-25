@@ -1,6 +1,7 @@
 name: DocFlow AI CI/CD
 
 on:
+
   push:
     branches:
       - main
@@ -11,39 +12,78 @@ on:
 
 jobs:
 
-  test:
+  ci:
 
     runs-on: ubuntu-latest
 
     steps:
 
+      # CHECKOUT
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # DOCKER BUILDX
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # BUILD
       - name: Build Docker image
         run: |
           docker build -t docflow-ai .
 
-      - name: Run tests
+      # LINT
+      - name: Run Lint
+        run: |
+          docker run --rm \
+          docflow-ai \
+          flake8 app
+
+      # UNIT TESTS
+      - name: Run Unit Tests
         run: |
           docker run --rm \
             -e DATABASE_URL="${{ secrets.DATABASE_TEST_URL }}" \
             docflow-ai \
-            pytest --cov=app -v
+            pytest tests/unit -v
+
+      # INTEGRATION TESTS
+      - name: Run Integration Tests
+        run: |
+          docker run --rm \
+            -e DATABASE_URL="${{ secrets.DATABASE_TEST_URL }}" \
+            -v ${{ github.workspace }}/app/storage/uploads:/app/app/storage/uploads \
+            docflow-ai \
+            pytest tests/integration --cov=app -v
 
   deploy:
 
-    needs: test
+    needs: ci
 
     runs-on: ubuntu-latest
 
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
 
+      # DEPLOY RENDER
       - name: Trigger Render Deploy
         run: |
           curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+  healthcheck:
+
+    needs: deploy
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # WAIT DEPLOY
+      - name: Wait deployment
+        run: sleep 40
+
+      # HEALTHCHECK
+      - name: API Health Check
+        run: |
+          curl --fail --retry 5 --retry-delay 5 \
+          https://docflow-ai-lj3a.onrender.com/health

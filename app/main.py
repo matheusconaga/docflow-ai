@@ -10,6 +10,13 @@ app = FastAPI(
 )
 
 
+# HEALTHCHECK
+@app.get("/health")
+def health():
+    return {
+        "status": "ok"
+    }
+    
 # REGISTERED ROUTES
 app.include_router(documents_router)
 
@@ -25,4 +32,4 @@ app.add_middleware(
 
 if __name__ == "__main__":
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
