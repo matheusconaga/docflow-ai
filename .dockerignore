@@ -1,33 +1,6 @@
-# GIT
-.git
-.gitignore
-
-# PYTHON
 venv
 __pycache__
-*.pyc
-*.pyo
-*.pyd
 .pytest_cache
-.mypy_cache
-
-# TESTS
-tests
-
-# ENV
-.env
-
-# COVERAGE
 .coverage
 htmlcov
-
-# IDE
-.vscode
-.idea
-
-# STORAGE
-app/storage/uploads
-
-# OS
-.DS_Store
-Thumbs.db
+.git
