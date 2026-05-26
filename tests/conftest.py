@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.db.database import Base, engine
 from app.main import app
+
 # IMPORT MODELS
 from app.models.document import Document
 from app.models.document_structured import DocumentStructured
