@@ -5,15 +5,18 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# SYSTEM DEPENDENCIES
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-por \
     && rm -rf /var/lib/apt/lists/*
 
+# DEPENDENCIES
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# PROJECT
 COPY . .
 
 EXPOSE 8000

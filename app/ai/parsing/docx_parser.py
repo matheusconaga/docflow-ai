@@ -1,5 +1,5 @@
-from fastapi import HTTPException
 from docx import Document
+from fastapi import HTTPException
 
 
 # PARSING MODULE FOR DOCX FILES

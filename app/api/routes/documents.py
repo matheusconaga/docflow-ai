@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-
 # DOCUMENTS SCHEMAS
 from app.schemas.document_schema import DocumentResponse
+from app.schemas.document_structured_schema import DocumentStructuredResponse
 from app.schemas.extract_document_schema import ExtractDocumentResponse
-
 # DOCUMENTS SERVICES
 from app.services.document_service import DocumentService
+from app.services.document_structured_service import DocumentStructuredService
 from app.services.extract_document_service import ExtractDocumentService
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
@@ -33,3 +33,11 @@ def extract_document(document_id: str, db: Session = Depends(get_db)):
     document = ExtractDocumentService.extract_document(db=db, document_id=document_id)
 
     return document
+
+
+# ROUTE FOR STRUCTURE EXTRACT_TEXT
+
+
+@router.post("/{document_id}/structure", response_model=DocumentStructuredResponse)
+def structure_document(document_id: str, db: Session = Depends(get_db)):
+    return DocumentStructuredService.structure_document(db=db, document_id=document_id)

@@ -35,14 +35,16 @@ jobs:
       - name: Run Lint
         run: |
           docker run --rm \
-          docflow-ai \
-          flake8 app
+            docflow-ai \
+            flake8 app
 
       # UNIT TESTS
       - name: Run Unit Tests
         run: |
           docker run --rm \
-            -e DATABASE_URL="${{ secrets.DATABASE_TEST_URL }}" \
+            -e TESTING=true \
+            -e DATABASE_TEST_URL="${{ secrets.DATABASE_TEST_URL }}" \
+            -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
             docflow-ai \
             pytest tests/unit -v
 
@@ -50,7 +52,9 @@ jobs:
       - name: Run Integration Tests
         run: |
           docker run --rm \
-            -e DATABASE_URL="${{ secrets.DATABASE_TEST_URL }}" \
+            -e TESTING=true \
+            -e DATABASE_TEST_URL="${{ secrets.DATABASE_TEST_URL }}" \
+            -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
             -v ${{ github.workspace }}/app/storage/uploads:/app/app/storage/uploads \
             docflow-ai \
             pytest tests/integration --cov=app -v
@@ -78,12 +82,14 @@ jobs:
 
     steps:
 
+      # WAIT DEPLOY
       - name: Wait deployment
         run: sleep 120
 
+      # HEALTHCHECK
       - name: API Health Check
         run: |
           curl --fail \
-          --retry 10 \
-          --retry-delay 10 \
-          https://docflow-ai-lj3a.onrender.com/health
+            --retry 10 \
+            --retry-delay 10 \
+            https://docflow-ai-lj3a.onrender.com/health
