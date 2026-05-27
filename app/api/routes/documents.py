@@ -3,13 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas.document_chunk_schema import DocumentChunkResponse
-
+from app.schemas.document_embedding_schema import DocumentEmbeddingResponse
 # DOCUMENTS SCHEMAS
 from app.schemas.document_schema import DocumentResponse
 from app.schemas.document_structured_schema import DocumentStructuredResponse
 from app.schemas.extract_document_schema import ExtractDocumentResponse
 from app.services.document_chunk_service import DocumentChunkService
-
+from app.services.document_embedding_service import DocumentEmbeddingService
 # DOCUMENTS SERVICES
 from app.services.document_service import DocumentService
 from app.services.document_structured_service import DocumentStructuredService
@@ -52,3 +52,15 @@ def structure_document(document_id: str, db: Session = Depends(get_db)):
 def chunk_document(document_id: str, db: Session = Depends(get_db)):
 
     return DocumentChunkService.chunk_document(db=db, document_id=document_id)
+
+
+# ROUTE FOR GENERATING EMBEDDINGS
+@router.post(
+    "/{document_id}/embeddings", response_model=list[DocumentEmbeddingResponse]
+)
+def generate_embeddings(document_id: str, db: Session = Depends(get_db)):
+
+    return DocumentEmbeddingService.generate_embeddings(
+        db=db,
+        document_id=document_id,
+    )

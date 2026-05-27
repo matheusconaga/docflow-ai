@@ -1,44 +1,76 @@
+import os
+
+os.environ["TESTING"] = "true"
+
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.db.database import Base, engine
+from app.db.database import Base, get_db
 from app.main import app
-
 # IMPORT MODELS
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
 from app.models.document_structured import DocumentStructured
+
+# TEST DATABASE
+TEST_DATABASE_URL = os.getenv("DATABASE_TEST_URL")
+
+test_engine = create_engine(
+    TEST_DATABASE_URL,
+    pool_pre_ping=True,
+)
+
+TestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=test_engine,
+)
 
 
 # CREATE TEST TABLES
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
 
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=test_engine)
 
     yield
 
-    Base.metadata.drop_all(bind=engine)
+    Base.metadata.drop_all(bind=test_engine)
 
 
 # DATABASE SESSION
 @pytest.fixture
 def db_session():
 
-    Session = sessionmaker(
-        autocommit=False,
-        autoflush=False,
-        bind=engine,
-    )
+    connection = test_engine.connect()
 
-    db = Session()
+    transaction = connection.begin()
+
+    db = TestingSessionLocal(bind=connection)
 
     try:
         yield db
 
     finally:
         db.close()
+        transaction.rollback()
+        connection.close()
+
+
+# OVERRIDE FASTAPI DB
+@pytest.fixture(autouse=True)
+def override_get_db(db_session):
+
+    def _get_test_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = _get_test_db
+
+    yield
+
+    app.dependency_overrides.clear()
 
 
 # FASTAPI CLIENT
@@ -57,7 +89,8 @@ def upload_file(client):
         with open(file_path, "rb") as file:
 
             response = client.post(
-                "/documents/upload", files={"file": (filename, file, content_type)}
+                "/documents/upload",
+                files={"file": (filename, file, content_type)},
             )
 
         return response

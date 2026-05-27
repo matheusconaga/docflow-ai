@@ -1,5 +1,5 @@
-from fastapi import HTTPException
 import pytest
+from fastapi import HTTPException
 
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
@@ -19,7 +19,7 @@ class TestDocumentChunkService:
             stored_filename="test.pdf",
             file_path="/tmp/test.pdf",
             status="structured",
-            extracted_text="Texto"
+            extracted_text="Texto",
         )
 
         db_session.add(document)
@@ -31,12 +31,7 @@ class TestDocumentChunkService:
             subject="Educação Física",
             level="1º Ano",
             contents=["Danças"],
-            skills=[
-                {
-                    "code": "EF01",
-                    "description": "Experimentar movimentos"
-                }
-            ],
+            skills=[{"code": "EF01", "description": "Experimentar movimentos"}],
             methodologies=["Aulas práticas"],
             assessment=["Participação"],
         )
@@ -64,7 +59,7 @@ class TestDocumentChunkService:
             stored_filename="test.pdf",
             file_path="/tmp/test.pdf",
             status="structured",
-            extracted_text="Texto"
+            extracted_text="Texto",
         )
 
         db_session.add(document)
@@ -76,12 +71,7 @@ class TestDocumentChunkService:
             subject="Educação Física",
             level="1º Ano",
             contents=["Danças"],
-            skills=[
-                {
-                    "code": "EF01",
-                    "description": "Experimentar movimentos"
-                }
-            ],
+            skills=[{"code": "EF01", "description": "Experimentar movimentos"}],
             methodologies=["Aulas práticas"],
             assessment=["Participação"],
         )
