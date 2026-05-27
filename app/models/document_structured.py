@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import JSON, Column, DateTime, ForeignKey, String
+from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 
@@ -29,3 +30,9 @@ class DocumentStructured(Base):
     assessment = Column(JSON, nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    chunks = relationship(
+        "DocumentChunk",
+        back_populates="structured_document",
+        cascade="all, delete-orphan",
+    )

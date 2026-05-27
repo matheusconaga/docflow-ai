@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.schemas.document_chunk_schema import DocumentChunkResponse
 
 # DOCUMENTS SCHEMAS
 from app.schemas.document_schema import DocumentResponse
 from app.schemas.document_structured_schema import DocumentStructuredResponse
 from app.schemas.extract_document_schema import ExtractDocumentResponse
+from app.services.document_chunk_service import DocumentChunkService
 
 # DOCUMENTS SERVICES
 from app.services.document_service import DocumentService
@@ -43,3 +45,10 @@ def extract_document(document_id: str, db: Session = Depends(get_db)):
 @router.post("/{document_id}/structure", response_model=DocumentStructuredResponse)
 def structure_document(document_id: str, db: Session = Depends(get_db)):
     return DocumentStructuredService.structure_document(db=db, document_id=document_id)
+
+
+# ROUTE FOR GENERATING CHUNKS
+@router.post("/{document_id}/chunk", response_model=list[DocumentChunkResponse])
+def chunk_document(document_id: str, db: Session = Depends(get_db)):
+
+    return DocumentChunkService.chunk_document(db=db, document_id=document_id)

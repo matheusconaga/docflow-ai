@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import String, cast
 from sqlalchemy.orm import Session
 
-from app.ai.parsing.extractor import Extractor
+from app.ai.parsing.orchestrator.extractor import Extractor
 from app.models.document import Document
 
 

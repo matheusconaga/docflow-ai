@@ -1,8 +1,11 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
 from app.api.routes.documents import router as documents_router
+from app.db.database import get_db
+from app.models.document_structured import DocumentStructured
 
 app = FastAPI(
     title="DocFlow AI",
@@ -15,6 +18,13 @@ app = FastAPI(
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/getdocuments")
+def get_docs(db: Session = Depends(get_db)):
+    documents = db.query(DocumentStructured).all()
+
+    return {"data": documents}
 
 
 # REGISTERED ROUTES

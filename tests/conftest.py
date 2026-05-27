@@ -7,6 +7,7 @@ from app.main import app
 
 # IMPORT MODELS
 from app.models.document import Document
+from app.models.document_chunk import DocumentChunk
 from app.models.document_structured import DocumentStructured
 
 
@@ -88,3 +89,16 @@ def structure_document(client):
         return response
 
     return _structure
+
+
+# CHUNK DOCUMENT
+@pytest.fixture
+def chunk_document(client):
+
+    def _chunk(document_id: str):
+
+        response = client.post(f"/documents/{document_id}/chunk")
+
+        return response
+
+    return _chunk
