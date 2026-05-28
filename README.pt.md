@@ -6,7 +6,7 @@
 <h1 align="center">🧠 DocFlow AI</h1>
 
 <p align="center">
-Intelligent pedagogical document processing pipeline using AI, OCR, embeddings and semantic search.
+Pipeline inteligente de processamento de documentos pedagógicos utilizando IA, OCR, embeddings e busca semântica.
 </p>
 
 <p align="center">
@@ -31,70 +31,69 @@ Intelligent pedagogical document processing pipeline using AI, OCR, embeddings a
   </a>
 </p>
 
-## 📌 About the Project
+## 📌 Sobre o Projeto
 
-**DocFlow AI** is an AI-powered educational document processing platform designed to assist teachers and educational institutions through intelligent document analysis, semantic processing, embeddings, and future RAG-based contextual retrieval.
+O **DocFlow AI** é uma plataforma de processamento de documentos educacionais baseada em IA, projetada para auxiliar professores e instituições de ensino por meio de análise inteligente de documentos, processamento semântico, embeddings e futura recuperação contextual baseada em RAG.
 
-## ✅ Current Features
+## ✅ Funcionalidades Atuais
 
-- PDF upload
-- DOCX upload
-- Image upload
-- OCR extraction with Tesseract
-- Semantic chunking
-- Gemini AI structuring
-- Embedding generation
-- PostgreSQL persistence
-- pgvector support
-- Unit and integration tests
-- CI/CD pipeline
+- Upload de PDF
+- Upload de DOCX
+- Upload de imagem
+- Extração OCR com Tesseract
+- Divisão semântica (Semantic chunking)
+- Estruturação com Gemini AI
+- Geração de embeddings
+- Persistência em PostgreSQL
+- Suporte a pgvector
+- Testes unitários e de integração
+- Pipeline de CI/CD
 
 
 ## 🧠 Core
-The project focuses on transforming pedagogical documents into structured educational data, insights, metrics, and semantic knowledge that can support:
+O projeto foca em transformar documentos pedagógicos em dados educacionais estruturados, insights, métricas e conhecimento semântico que possam apoiar:
 
-- lesson plan generation
-- personalized activities
-- intelligent assessments
-- pedagogical recommendations
-- educational analytics
-- AI-powered teacher assistance
+- geração de planos de aula
+- atividades personalizadas
+- avaliações inteligentes
+- recomendações pedagógicas
+- análise de dados educacionais (educational analytics)
+- assistência ao professor baseada em IA
 
 
 
-## 🧱 System Architecture
+## 🧱 Arquitetura do Sistema
 
 ```text
 Upload
    ↓
 OCR / Parsing
    ↓
-AI Structuring
+Estruturação por IA
    ↓
-Chunking
+Divisão (Chunking)
    ↓
 Embeddings
    ↓
-Vector Storage
+Banco Vetorial
    ↓
-Future RAG Pipeline
+Futuro Pipeline RAG
 ```
 
-## 🧠 Future RAG Architecture
+## 🧠 Futura Arquitetura RAG
+O sistema atual já gera embeddings semânticos e dados pedagógicos fragmentados.
 
-The current system already generates semantic embeddings and chunked pedagogical data.
+O próximo passo é a implementação de:
 
-The next step is implementing:
+- recuperação semântica
+- busca contextual
+- recomendações pedagógicas
+- geração de planos de aula
+- assistente inteligente para o professor
 
-- semantic retrieval
-- contextual search
-- pedagogical recommendations
-- lesson plan generation
-- intelligent teacher assistant
+## 🐳 Executando com Docker
 
-## 🐳 Running with Docker
-
-### Clone repository
+### Clonar o repositório
 
 ```bash
 git clone https://github.com/matheusconaga/docflow-ai.git
@@ -102,7 +101,7 @@ git clone https://github.com/matheusconaga/docflow-ai.git
 cd docflow-ai
 ```
 
-### Create .env
+### Criar o .env
 
 ```env
 DATABASE_URL=
@@ -110,20 +109,20 @@ DATABASE_TEST_URL=
 GEMINI_API_KEY=
 ```
 
-### Run project
+### Executar o projeto
 
 ```bash
 docker compose up --build
 ```
 
-### API is Running
+### API em Execução
 ```bash
 http://localhost:8000/docs
 ```
 
-## 💻 Running without Docker
+## 💻 Executando sem Docker
 
-### Clone repository
+### Clonar o repositório
 
 ```bash
 git clone https://github.com/matheusconaga/docflow-ai.git
@@ -131,12 +130,12 @@ git clone https://github.com/matheusconaga/docflow-ai.git
 cd docflow-ai
 ```
 
-### Create virtual environment
+### Criar o ambiente virtual
 ```bash
 python -m venv venv
 ```
 
-### Activate virtual environment
+### Ativar o ambiente virtual
 ```bash
 Windows (PowerShell)
 
@@ -148,12 +147,12 @@ Linux / Mac
 source venv/bin/activate
 ```
 
-### Install dependencies
+### Instalar dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### Create .env
+### Criar o .env
 
 ```env
 DATABASE_URL=
@@ -161,65 +160,64 @@ DATABASE_TEST_URL=
 GEMINI_API_KEY=
 ```
 
-### Run Database (if applicable)
+### Executar o Banco de Dados (se aplicável)
 ```bash
 python -m app.db.create_tables 
 ```
 
-### Run project
+### Executar o projeto
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-### API is Running
+### API em Execução
 ```bash
 http://localhost:8000/docs
 ```
 
-## 🧪 Tests
-The project contains:
+## 🧪 Testes
+O projeto contém:
 
-- unit tests
-- integration tests
-- API route tests
-- embedding tests
-- OCR tests
+- testes unitários
+- testes de integração
+- testes de rotas da API
+- testes de embedding
+- testes de OCR
 
-Coverage generated with:
+Cobertura gerada com:
 
 - pytest
 - pytest-cov
 
-## For Run Tests
+## Para Executar os Testes
 ```bash
 pytest --cov=app
 ```
 
 ## ⚙️ CI/CD
-Automated pipeline with GitHub Actions:
+Pipeline automatizado com GitHub Actions:
 
 - lint
-- tests
+- testes
 - docker build
-- deployment
+- deploy
 - health check
 
 <p>
   <img src="https://github.com/matheusconaga/docflow-ai/blob/main/assets/pipeline.png?raw=true" width="800"/>
 </p>
 
-## 📄 License
-
+## 📄 Licença
 Copyright © 2026 Matheus Lula.
 
-All rights reserved.
+Todos os direitos reservados.
 
-This project is available for portfolio and educational purposes only.
+Este projeto está disponível apenas para fins de portfólio e educacionais.
 
-Unauthorized commercial use, distribution, or reproduction is prohibited.
+O uso comercial, distribuição ou reprodução não autorizada é proibido.
 
-## 👨‍💻 Author
+## 👨‍💻 Autor
 
 <p align="center">
   <img src="https://avatars.githubusercontent.com/matheusconaga" width="110px;" style="border-radius:50%;" />
