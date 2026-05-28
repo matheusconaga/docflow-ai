@@ -18,6 +18,7 @@ Intelligent pedagogical document processing pipeline using AI, OCR, embeddings a
 <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
 <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
 <img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white"/>
+<img src="https://img.shields.io/badge/pgvector-336791?style=for-the-badge&logo=postgresql&logoColor=white"/>
 <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
 <img src="https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white"/>
 <img src="https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white"/>
@@ -33,34 +34,20 @@ Intelligent pedagogical document processing pipeline using AI, OCR, embeddings a
 
 ## 📌 About the Project
 
-**DocFlow AI** is an AI-powered educational document processing platform designed to assist teachers and educational institutions through intelligent document analysis, semantic processing, embeddings, and future RAG-based contextual retrieval.
+**DocFlow AI** is an AI-powered educational document processing platform designed to assist teachers and educational institutions through intelligent document analysis, semantic processing, embeddings, and RAG-based contextual retrieval.
 
-## ✅ Current Features
+## ✅ Features
 
-- PDF upload
-- DOCX upload
-- Image upload
+- PDF, DOCX and image upload
 - OCR extraction with Tesseract
-- Semantic chunking
-- Gemini AI structuring
-- Embedding generation
+- Gemini AI structuring (subject, level, skills, methodologies)
+- Semantic chunking (6 pedagogical types)
+- Embedding generation with `gemini-embedding-001`
+- Vector storage with pgvector
+- RAG pipeline — semantic retrieval + Gemini generation
 - PostgreSQL persistence
-- pgvector support
 - Unit and integration tests
 - CI/CD pipeline
-
-
-## 🧠 Core
-The project focuses on transforming pedagogical documents into structured educational data, insights, metrics, and semantic knowledge that can support:
-
-- lesson plan generation
-- personalized activities
-- intelligent assessments
-- pedagogical recommendations
-- educational analytics
-- AI-powered teacher assistance
-
-
 
 ## 🧱 System Architecture
 
@@ -69,28 +56,52 @@ Upload
    ↓
 OCR / Parsing
    ↓
-AI Structuring
+AI Structuring (Gemini)
    ↓
-Chunking
+Semantic Chunking
    ↓
-Embeddings
+Embedding Generation
    ↓
-Vector Storage
+pgvector Storage
    ↓
-Future RAG Pipeline
+RAG Pipeline (retrieve → generate)
 ```
 
-## 🧠 Future RAG Architecture
+## 🔍 RAG Pipeline
 
-The current system already generates semantic embeddings and chunked pedagogical data.
+Each document is split into 6 semantic chunk types:
 
-The next step is implementing:
+| Type | Description |
+|---|---|
+| `lesson_plan` | Subject, level, contents, skills, methodologies |
+| `activity` | Practical activities derived from the document |
+| `assessment` | Assessment strategies |
+| `bncc` | Brazilian national curriculum alignment |
+| `recommendation` | Pedagogical recommendations |
+| `insight` | Learning insights |
 
-- semantic retrieval
-- contextual search
-- pedagogical recommendations
-- lesson plan generation
-- intelligent teacher assistant
+**Query flow:**
+1. User question → embedded with `gemini-embedding-001`
+2. pgvector cosine similarity search → top-k relevant chunks
+3. Retrieved chunks → injected as context into Gemini prompt
+4. Gemini generates a grounded answer based only on document context
+
+**RAG endpoints:**
+
+```
+POST /rag/query   → full pipeline: returns answer + source chunks
+POST /rag/search  → semantic search only: returns ranked chunks
+```
+
+Example:
+```json
+POST /rag/query
+{
+  "query": "How to plan an engaging lesson on fractions?",
+  "top_k": 5,
+  "chunk_type": "lesson_plan"
+}
+```
 
 ## 🐳 Running with Docker
 
@@ -153,6 +164,17 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Install pgvector (macOS)
+```bash
+brew install tesseract tesseract-lang
+
+# Build pgvector for your PostgreSQL version
+cd /tmp && git clone --branch v0.8.2 https://github.com/pgvector/pgvector.git
+cd pgvector
+PG_CONFIG=/opt/homebrew/opt/postgresql@14/bin/pg_config make
+sudo PG_CONFIG=/opt/homebrew/opt/postgresql@14/bin/pg_config make install
+```
+
 ### Create .env
 
 ```env
@@ -161,9 +183,13 @@ DATABASE_TEST_URL=
 GEMINI_API_KEY=
 ```
 
-### Run Database (if applicable)
+### Run database migration
 ```bash
-python -m app.db.create_tables 
+# Creates tables and enables pgvector extension
+python -m app.db.create_tables
+
+# Converts embedding column from JSON to vector(3072)
+python -m app.db.migrations.add_pgvector
 ```
 
 ### Run project
@@ -175,6 +201,16 @@ uvicorn app.main:app --reload
 ### API is Running
 ```bash
 http://localhost:8000/docs
+```
+
+### Document processing pipeline
+
+```
+POST /documents/upload
+POST /documents/{id}/extract
+POST /documents/{id}/structure
+POST /documents/{id}/chunk
+POST /documents/{id}/embeddings   ← required before using RAG
 ```
 
 ## 🧪 Tests

@@ -1,9 +1,12 @@
 import uvicorn
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.api.routes.documents import router as documents_router
+from app.api.routes.rag import router as rag_router
 from app.db.database import get_db
 from app.models.document_structured import DocumentStructured
 
@@ -29,6 +32,9 @@ def get_docs(db: Session = Depends(get_db)):
 
 # REGISTERED ROUTES
 app.include_router(documents_router)
+app.include_router(rag_router)
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 # MIDLEWARE CONFIGURATION

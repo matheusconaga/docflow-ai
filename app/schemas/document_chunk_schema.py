@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -14,7 +14,7 @@ class DocumentChunkResponse(BaseModel):
 
     content: str
 
-    chunk_metadata: Optional[dict[str, str]]
+    chunk_metadata: Optional[dict[str, Any]]
 
     embedding: Optional[list[float]] = None
 
