@@ -2,12 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.schemas.rag_schema import (
-    ChunkSource,
-    RAGQueryRequest,
-    RAGQueryResponse,
-    RAGSearchRequest,
-)
+from app.schemas.rag_schema import (ChunkSource, RAGQueryRequest,
+                                    RAGQueryResponse, RAGSearchRequest)
 from app.services.rag_service import RAGService
 
 router = APIRouter(prefix="/rag", tags=["RAG"])

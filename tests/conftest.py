@@ -4,11 +4,12 @@ os.environ["TESTING"] = "true"
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from app.db.database import Base, get_db
 from app.main import app
+
 # IMPORT MODELS
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
@@ -32,6 +33,11 @@ TestingSessionLocal = sessionmaker(
 # CREATE TEST TABLES
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
+
+    # ENABLE PGVECTOR
+    with test_engine.connect() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        conn.commit()
 
     Base.metadata.create_all(bind=test_engine)
 

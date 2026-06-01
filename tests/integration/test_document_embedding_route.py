@@ -1,5 +1,8 @@
 from unittest.mock import patch
 
+import pytest
+
+
 class TestDocumentEmbeddingRoute:
 
     @patch(
@@ -12,18 +15,19 @@ class TestDocumentEmbeddingRoute:
         db_session,
     ):
 
-        mock_generate.return_value = [0.1, 0.2, 0.3]
+        mock_generate.return_value = [0.1] * 3072
+
 
         from app.models.document import Document
         from app.models.document_chunk import DocumentChunk
         from app.models.document_structured import DocumentStructured
 
         document = Document(
-        filename="lesson-plan.pdf",
-        stored_filename="lesson-plan.pdf",
-        file_path="/tmp/lesson-plan.pdf",
-        status="processed",
-        extracted_text="Texto pedagógico extraído",
+            filename="lesson-plan.pdf",
+            stored_filename="lesson-plan.pdf",
+            file_path="/tmp/lesson-plan.pdf",
+            status="processed",
+            extracted_text="Texto pedagógico extraído",
         )
 
         db_session.add(document)
@@ -54,13 +58,12 @@ class TestDocumentEmbeddingRoute:
         db_session.add(chunk)
         db_session.commit()
 
-        response = client.post(
-            f"/documents/{document.id}/embeddings"
-        )
+        response = client.post(f"/documents/{document.id}/embeddings")
 
         assert response.status_code == 200
 
         data = response.json()
 
         assert len(data) == 1
-        assert data[0]["embedding"] == [0.1, 0.2, 0.3]
+        assert len(data[0]["embedding"]) == 3072
+        assert data[0]["embedding"][0] == pytest.approx(0.1)

@@ -7,9 +7,7 @@ from app.ai.embeddings.gemini_embedding import GeminiEmbedding
 
 class TestGeminiEmbedding:
 
-    @patch(
-        "app.ai.embeddings.gemini_embedding.client.models.embed_content"
-    )
+    @patch("app.ai.embeddings.gemini_embedding.client.models.embed_content")
     def test_should_generate_embedding(
         self,
         mock_embed,
@@ -17,9 +15,7 @@ class TestGeminiEmbedding:
 
         mock_response = MagicMock()
 
-        mock_response.embeddings = [
-            MagicMock(values=[0.1, 0.2, 0.3])
-        ]
+        mock_response.embeddings = [MagicMock(values=[0.1, 0.2, 0.3])]
 
         mock_embed.return_value = mock_response
 
@@ -27,9 +23,7 @@ class TestGeminiEmbedding:
 
         assert result == [0.1, 0.2, 0.3]
 
-    @patch(
-        "app.ai.embeddings.gemini_embedding.client.models.embed_content"
-    )
+    @patch("app.ai.embeddings.gemini_embedding.client.models.embed_content")
     def test_should_raise_runtime_error_when_api_fails(
         self,
         mock_embed,

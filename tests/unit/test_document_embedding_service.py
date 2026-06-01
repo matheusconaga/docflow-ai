@@ -1,11 +1,11 @@
 from unittest.mock import patch
 
+import pytest
+
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
 from app.models.document_structured import DocumentStructured
-from app.services.document_embedding_service import (
-    DocumentEmbeddingService,
-)
+from app.services.document_embedding_service import DocumentEmbeddingService
 
 
 class TestDocumentEmbeddingService:
@@ -19,14 +19,14 @@ class TestDocumentEmbeddingService:
         db_session,
     ):
 
-        mock_generate.return_value = [0.1, 0.2, 0.3]
+        mock_generate.return_value = [0.1] * 3072
 
         document = Document(
-        filename="lesson-plan.pdf",
-        stored_filename="lesson-plan.pdf",
-        file_path="/tmp/lesson-plan.pdf",
-        status="processed",
-        extracted_text="Texto pedagógico extraído",
+            filename="lesson-plan.pdf",
+            stored_filename="lesson-plan.pdf",
+            file_path="/tmp/lesson-plan.pdf",
+            status="processed",
+            extracted_text="Texto pedagógico extraído",
         )
 
         db_session.add(document)
@@ -63,4 +63,5 @@ class TestDocumentEmbeddingService:
         )
 
         assert len(result) == 1
-        assert result[0].embedding == [0.1, 0.2, 0.3]
+        assert len(result[0].embedding) == 3072
+        assert result[0].embedding[0] == pytest.approx(0.1)

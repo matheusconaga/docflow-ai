@@ -4,6 +4,7 @@ Migration: Enable pgvector and convert embedding column from JSON to vector(3072
 Run once before starting the app:
     python -m app.db.migrations.add_pgvector
 """
+
 import psycopg2
 
 from app.core.config import DATABASE_URL

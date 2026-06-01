@@ -5,8 +5,16 @@ from app.models.document_chunk import DocumentChunk
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-_PROMPT_TEMPLATE = """Você é um assistente especializado em planejamento pedagógico.
-Use apenas o contexto abaixo para responder à pergunta com precisão e objetividade.
+_PROMPT_TEMPLATE = """
+Você é um assistente especializado em educação e planejamento pedagógico.
+
+INSTRUÇÕES:
+- Utilize APENAS as informações presentes no CONTEXTO.
+- Não invente informações.
+- Caso o contexto não seja suficiente, diga explicitamente:
+  "Não encontrei informações suficientes no contexto fornecido."
+- Seja técnico, objetivo e pedagógico.
+- Priorize coerência curricular e alinhamento educacional.
 
 CONTEXTO:
 {context}
@@ -14,7 +22,8 @@ CONTEXTO:
 PERGUNTA:
 {query}
 
-Resposta:"""
+RESPOSTA:
+"""
 
 
 class RAGGenerator:
@@ -41,7 +50,7 @@ class RAGGenerator:
         prompt = _PROMPT_TEMPLATE.format(context=context, query=query)
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
         )
 

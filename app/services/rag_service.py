@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.ai.embeddings.orchestrator.embedding_generator import EmbeddingGenerator
+from app.ai.embeddings.orchestrator.embedding_generator import \
+    EmbeddingGenerator
 from app.ai.rag.generator import RAGGenerator
 from app.ai.rag.retriever import VectorRetriever
 
