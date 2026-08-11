@@ -2,17 +2,24 @@ import json
 import time
 
 from google import genai
+from google.genai import types
 from google.genai.errors import ServerError
 
 from app.core.config import GEMINI_API_KEY
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
+# Limit input to avoid exceeding output token budget
+_MAX_INPUT_CHARS = 80_000
+
 
 class DocumentStructurer:
 
     @staticmethod
     def structure(extracted_text: str):
+
+        # Truncate silently if document is too long
+        text = extracted_text[:_MAX_INPUT_CHARS]
 
         prompt = f"""
 Você é especialista em documentos pedagógicos brasileiros.
@@ -48,7 +55,7 @@ REGRAS PARA skills:
 - Não resuma habilidades
 
 DOCUMENTO:
-{extracted_text}
+{text}
 """
 
         retries = 3
@@ -58,7 +65,12 @@ DOCUMENTO:
             try:
 
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash", contents=prompt
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        max_output_tokens=65536,
+                    ),
                 )
 
                 clean_text = (
@@ -77,7 +89,13 @@ DOCUMENTO:
 
             except json.JSONDecodeError:
 
-                raise ValueError("A IA retornou JSON inválido")
+                if attempt < retries - 1:
+                    # Retry with shorter input
+                    text = text[:len(text) // 2]
+                    time.sleep(2)
+                    continue
+
+                raise ValueError("A IA retornou JSON inválido após múltiplas tentativas")
 
             except Exception as e:
 

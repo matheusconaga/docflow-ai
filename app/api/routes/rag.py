@@ -20,6 +20,7 @@ def rag_query(request: RAGQueryRequest, db: Session = Depends(get_db)):
         query=request.query,
         top_k=request.top_k,
         chunk_type=request.chunk_type,
+        mode=request.mode,
     )
 
 

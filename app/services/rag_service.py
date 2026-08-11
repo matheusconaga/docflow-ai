@@ -14,6 +14,7 @@ class RAGService:
         query: str,
         top_k: int = 5,
         chunk_type: str | None = None,
+        mode: str = "strict",
     ) -> dict:
         query_embedding = EmbeddingGenerator.generate(query)
 
@@ -30,7 +31,7 @@ class RAGService:
                 detail="Nenhum chunk relevante encontrado para a consulta",
             )
 
-        answer = RAGGenerator.generate(query=query, chunks=chunks)
+        answer = RAGGenerator.generate(query=query, chunks=chunks, mode=mode)
 
         return {"answer": answer, "sources": chunks}
 

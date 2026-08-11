@@ -7,6 +7,7 @@ class RAGQueryRequest(BaseModel):
     query: str
     top_k: int = 5
     chunk_type: Optional[str] = None
+    mode: str = "strict"
 
 
 class RAGSearchRequest(BaseModel):
