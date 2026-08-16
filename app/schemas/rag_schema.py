@@ -5,12 +5,14 @@ from pydantic import BaseModel
 
 class RAGQueryRequest(BaseModel):
     query: str
+    class_id: Optional[str] = None
     top_k: int = 5
     chunk_type: Optional[str] = None
 
 
 class RAGSearchRequest(BaseModel):
     query: str
+    class_id: Optional[str] = None
     top_k: int = 5
     chunk_type: Optional[str] = None
 

@@ -9,3 +9,8 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://houstonbarros:admin@host.docker.internal:5432/edusync
+      - DATABASE_TEST_URL=postgresql://houstonbarros:admin@host.docker.internal:5432/edusync

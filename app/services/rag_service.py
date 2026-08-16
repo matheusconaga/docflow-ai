@@ -13,6 +13,8 @@ class RAGService:
     def query(
         db: Session,
         query: str,
+        teacher_id: str,
+        class_id: str | None = None,
         top_k: int = 5,
         chunk_type: str | None = None,
     ) -> dict:
@@ -21,6 +23,8 @@ class RAGService:
         chunks = VectorRetriever.search(
             db=db,
             query_embedding=query_embedding,
+            teacher_id=teacher_id,
+            class_id=class_id,
             top_k=top_k,
             chunk_type=chunk_type,
         )
@@ -39,6 +43,8 @@ class RAGService:
     def search(
         db: Session,
         query: str,
+        teacher_id: str,
+        class_id: str | None = None,
         top_k: int = 5,
         chunk_type: str | None = None,
     ) -> list:
@@ -47,6 +53,8 @@ class RAGService:
         chunks = VectorRetriever.search(
             db=db,
             query_embedding=query_embedding,
+            teacher_id=teacher_id,
+            class_id=class_id,
             top_k=top_k,
             chunk_type=chunk_type,
         )
