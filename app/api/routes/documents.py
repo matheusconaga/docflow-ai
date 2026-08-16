@@ -79,6 +79,9 @@ async def upload_document(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if current_user.ai_credits <= 0:
+        raise HTTPException(status_code=403, detail="Créditos insuficientes. Faça upgrade do seu plano para continuar processando documentos.")
+
     # If a class is specified, check if the user owns it
     if class_id:
         db_class = db.query(ClassModel).filter(
@@ -88,6 +91,9 @@ async def upload_document(
         
         if not db_class:
             raise HTTPException(status_code=404, detail="Turma não encontrada ou acesso negado")
+            
+        if db_class.is_locked:
+            raise HTTPException(status_code=403, detail="Esta turma está bloqueada devido ao limite do seu plano atual.")
 
     document = await DocumentService.upload_document(
         db=db, file=file, teacher_id=current_user.id, class_id=class_id
@@ -95,6 +101,10 @@ async def upload_document(
 
     # Schedule the processing pipeline in the background
     background_tasks.add_task(DocumentService.process_document_pipeline, document.id, current_user.id)
+
+    # Deduct credit
+    current_user.ai_credits -= 1
+    db.commit()
 
     return document
 

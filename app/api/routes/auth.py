@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 import os
 import uuid
 
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_password, hash_password
+from fastapi import HTTPException, status
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.auth_schema import (
@@ -11,6 +12,7 @@ from app.schemas.auth_schema import (
     RegisterRequest,
     TokenResponse,
     UpdateProfileRequest,
+    UpdatePasswordRequest,
     UserResponse,
 )
 from app.services.auth_service import (
@@ -73,6 +75,24 @@ def update_profile(
 
     return UserResponse.model_validate(current_user)
 
+@router.put("/password")
+def update_password(
+    data: UpdatePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update the current user's password."""
+    
+    if not verify_password(data.current_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Senha atual incorreta."
+        )
+        
+    current_user.password_hash = hash_password(data.new_password)
+    db.commit()
+    
+    return {"message": "Senha atualizada com sucesso."}
 
 @router.post("/avatar", response_model=UserResponse)
 async def upload_avatar(

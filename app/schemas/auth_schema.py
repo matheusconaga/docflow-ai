@@ -24,6 +24,10 @@ class UpdateProfileRequest(BaseModel):
     grade: Optional[str] = None
     specialties: Optional[str] = None
 
+class UpdatePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
 
 class UserResponse(BaseModel):
     id: str
@@ -38,6 +42,10 @@ class UserResponse(BaseModel):
     grade: Optional[str] = None
     specialties: Optional[str] = None
     avatar_url: Optional[str] = None
+    plan_type: str
+    ai_credits: int
+    plan_expires_at: Optional[datetime] = None
+    cancel_at_period_end: Optional[bool] = None
     created_at: datetime
 
     class Config:

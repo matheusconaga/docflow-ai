@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, String, Text
+from sqlalchemy import Boolean, Column, DateTime, String, Text, Integer
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -22,6 +22,12 @@ class User(Base):
     role = Column(String(50), nullable=False, default="teacher")  # teacher, admin, student
 
     is_active = Column(Boolean, default=True)
+
+    # Billing & Subscription
+    plan_type = Column(String(50), default="free") # free, essencial, pro
+    ai_credits = Column(Integer, default=5) # 5 for free, 35 for essencial, 100 for pro
+    plan_expires_at = Column(DateTime, nullable=True)
+    cancel_at_period_end = Column(Boolean, default=False)
 
     # Profile fields
     bio = Column(Text, nullable=True)

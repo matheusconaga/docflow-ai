@@ -29,6 +29,9 @@ from app.models.document_chunk import DocumentChunk
 from app.models.document_structured import DocumentStructured
 from app.models.notification_model import NotificationModel
 from app.models.lesson_plan import LessonPlan
+from app.models.lesson_plan_template import LessonPlanTemplate
+from app.models.activity import Activity
+from app.models.activity_submission import ActivitySubmission
 
 # Set the URL from env
 config.set_main_option("sqlalchemy.url", os.environ.get("DATABASE_URL"))

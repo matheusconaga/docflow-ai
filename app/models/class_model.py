@@ -23,6 +23,8 @@ class ClassModel(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    is_locked = Column(Boolean, default=False)
+    
     is_deleted = Column(Boolean, default=False)
     deleted_at = Column(DateTime, nullable=True)
 
@@ -31,3 +33,4 @@ class ClassModel(Base):
     students = relationship("StudentModel", back_populates="class_", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="class_", cascade="all, delete-orphan")
     lesson_plans = relationship("LessonPlan", back_populates="class_", cascade="all, delete-orphan")
+    activities = relationship("Activity", back_populates="class_", cascade="all, delete-orphan")

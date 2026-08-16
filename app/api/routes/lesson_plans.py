@@ -69,6 +69,9 @@ def generate_and_save_lesson_plan(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if current_user.ai_credits <= 0:
+        raise HTTPException(status_code=403, detail="Créditos insuficientes. Faça upgrade do seu plano para continuar gerando conteúdo.")
+
     # 1. Obter a turma
     class_obj = db.query(ClassModel).filter(
         ClassModel.id == data.classId,
@@ -78,6 +81,9 @@ def generate_and_save_lesson_plan(
     
     if not class_obj:
         raise HTTPException(status_code=404, detail="Turma não encontrada")
+        
+    if class_obj.is_locked:
+        raise HTTPException(status_code=403, detail="Esta turma está bloqueada devido ao limite do seu plano atual. Faça upgrade para gerar conteúdo para ela.")
 
     # 2. Busca RAG: Obter os embeddings do tópico e buscar contextos
     query = f"{data.subject} - {data.topic}. {data.objectives}"
@@ -124,6 +130,10 @@ def generate_and_save_lesson_plan(
     )
     
     db.add(lesson_plan)
+    
+    # 5. Descontar crédito
+    current_user.ai_credits -= 1
+    
     db.commit()
     db.refresh(lesson_plan)
 

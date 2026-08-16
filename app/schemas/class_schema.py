@@ -29,6 +29,7 @@ class ClassResponse(BaseModel):
     next_class_topic: str
     status_message: str
     teacher_id: str
+    is_locked: Optional[bool] = False
     created_at: datetime
     updated_at: datetime
 
