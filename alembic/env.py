@@ -32,7 +32,8 @@ from app.models.lesson_plan import LessonPlan
 from app.models.lesson_plan_template import LessonPlanTemplate
 from app.models.activity import Activity
 from app.models.activity_submission import ActivitySubmission
-
+from app.models.billing_history import BillingHistory
+from app.models.pre_registration import PreRegistration
 # Set the URL from env
 config.set_main_option("sqlalchemy.url", os.environ.get("DATABASE_URL"))
 
