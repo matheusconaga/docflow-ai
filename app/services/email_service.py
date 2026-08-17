@@ -10,11 +10,13 @@ env = Environment(
     loader=FileSystemLoader(template_dir),
     autoescape=select_autoescape(["html", "xml"])
 )
+def get_welcome_email_html():
+    template = env.get_template("welcome_preregistration.html")
+    return template.render()
 
 def send_welcome_email(to_email: str):
     try:
-        template = env.get_template("welcome_preregistration.html")
-        html_content = template.render()
+        html_content = get_welcome_email_html()
 
         # Usar e-mail de envio padrão ou um fictício caso não tenha domínio verificado no Resend
         from_email = os.getenv("RESEND_FROM_EMAIL", "contato@educassist.com.br")
