@@ -1,7 +1,6 @@
-import os
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-
+import os
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.auth_schema import RegisterRequest
@@ -57,19 +56,27 @@ def generate_token_for_user(user: User) -> str:
 
 
 def seed_admin_user(db: Session) -> None:
-    """Create a default admin user if none exists."""
-
     admin = db.query(User).filter(User.role == "admin").first()
 
     if admin is None:
+        admin_email = os.getenv("ADMIN_EMAIL")
+        admin_password = os.getenv("ADMIN_PASSWORD")
+
+        if not admin_email or not admin_password:
+            raise RuntimeError(
+                "ADMIN_EMAIL e ADMIN_PASSWORD precisam estar configurados"
+            )
+
         admin_user = User(
             name="Administrador",
-            email="admin@educassist.com",
-            password_hash=hash_password("admin123"),
+            email=admin_email,
+            password_hash=hash_password(admin_password),
             role="admin",
         )
+
         db.add(admin_user)
         db.commit()
-        print("✅ Admin seed criado: admin@educassist.com / admin123")
+
+        print(f"Admin seed criado: {admin_email}")
     else:
-        print("ℹ️  Admin já existe, seed ignorado.")
+        print("Admin já existe, seed ignorado.")
