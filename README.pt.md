@@ -72,7 +72,7 @@ O DocFlow AI implementa um pipeline de processamento de documentos que:
 | Funcionalidade | Descrição |
 |---|---|
 | Document Upload | Suporta arquivos PDF, DOCX e imagens (PNG, JPG e JPEG), com validação de tipo e tamanho de arquivo. |
-| Text Extraction | Extrai texto através de parsers especializados para os formatos PDF, DOCX e imagem. |
+| Text Extraction | Extrai texto através de *parsers* especializados para os formatos PDF, DOCX e imagem. |
 | AI-Powered Structuring | Utiliza o Gemini 2.5 Flash para transformar o texto extraído em dados pedagógicos estruturados, incluindo disciplinas, níveis educacionais, habilidades, metodologias e avaliações. |
 | Semantic Chunking | Organiza o conteúdo estruturado em seis categorias especializadas: planos de aula, atividades, avaliações, habilidades da BNCC, recomendações e *insights*. |
 | Vector Embeddings | Gera *embeddings* de 3072 dimensões usando `gemini-embedding-001`. |
@@ -171,6 +171,59 @@ A aplicação separa as responsabilidades em camadas distintas:
 | Database | Armazena documentos, informações estruturadas, blocos e *embeddings* vetoriais. |
 
 Essa separação torna a aplicação mais fácil de manter, testar e estender.
+
+---
+
+## 🧩 Decisões Técnicas e Desafios
+
+Durante o desenvolvimento, diversas decisões técnicas moldaram a arquitetura e o fluxo de processamento de documentos.
+
+### Seleção de Framework — FastAPI
+
+O FastAPI foi selecionado devido à sua integração direta com serviços de IA baseados em Python e ao seu suporte para a construção de APIs REST estruturadas.
+
+Sua validação baseada em Pydantic e a documentação automática de API também ajudam a manter contratos claros entre os componentes da aplicação.
+
+### Banco de Dados e Busca Vetorial — PostgreSQL + pgvector
+
+O PostgreSQL foi escolhido para gerenciar os dados relacionais da aplicação, enquanto o pgvector estende o mesmo banco de dados com armazenamento vetorial e capacidades de busca por similaridade.
+
+Essa abordagem permite que a aplicação gerencie metadados de documentos, conteúdo estruturado, blocos semânticos e *embeddings* sem a necessidade de introduzir um banco de dados vetorial separado.
+
+### *Chunking* Semântico Especializado
+
+O conteúdo do documento é dividido em seis categorias especializadas:
+
+- Planos de aula (*Lesson Plans*)
+- Atividades (*Activities*)
+- Avaliações (*Assessments*)
+- Habilidades da BNCC (*BNCC Skills*)
+- Recomendações (*Recommendations*)
+- *Insights* (*Insights*)
+
+Essa separação permite que a recuperação seja filtrada por propósito pedagógico. Por exemplo, uma consulta de recomendação pode priorizar blocos relacionados a recomendações em vez de recuperar conteúdo irrelevante de plano de aula.
+
+O objetivo é melhorar a relevância da recuperação, fornecendo um contexto mais específico para o pipeline de RAG.
+
+### Extração de Documentos e OCR
+
+A aplicação utiliza *parsers* especializados para arquivos PDF, DOCX e imagens.
+
+Para PDFs, o PyMuPDF extrai o texto existente. Quando uma página não possui texto extraível, o *parser* renderiza a página e aplica OCR usando o Tesseract.
+
+Os arquivos de imagem são processados por meio de Pillow e pytesseract, enquanto os arquivos DOCX são manipulados com python-docx.
+
+Essa abordagem oferece suporte tanto a documentos gerados digitalmente quanto digitalizados.
+
+### Geração RAG Fundamentada em Contexto
+
+O pipeline de RAG separa a recuperação de informações da geração de respostas.
+
+As perguntas dos usuários são convertidas em *embeddings* e comparadas com os blocos de documentos armazenados usando similaridade de cosseno. O conteúdo recuperado é então montado no contexto fornecido ao Gemini.
+
+O *prompt* de geração instrui o modelo a se basear no contexto recuperado e a indicar quando a informação disponível for insuficiente.
+
+Essa abordagem ajuda a reduzir respostas desconectadas dos documentos armazenados no sistema.
 
 ---
 
@@ -348,17 +401,30 @@ O DocFlow AI expõe endpoints RESTful através do FastAPI, organizados em opera�
 
 ---
 
-## 🧪 Testes
+## 🧪 Testes e Cobertura de Código
 
-O projeto inclui testes automatizados para validar partes importantes da aplicação.
+O DocFlow AI inclui testes unitários e de integração automatizados usando o Pytest para validar o processamento de documentos, integrações de IA, recuperação semântica e o comportamento da API.
 
-A cobertura de testes inclui:
+### Cobertura de Testes
 
-- Testes unitários.
-- Testes de integração.
-- Testes de rotas de API.
-- Testes relacionados a *embeddings*.
-- Testes relacionados a OCR.
+A execução mais recente dos testes registrou:
+
+| Métrica | Resultado |
+|---|---:|
+| Cobertura Geral de Código | 90% |
+| Testes Aprovados | 31 |
+| Instruções Analisadas | 542 |
+| Tempo de Execução | 34,32 segundos |
+
+### Áreas Cobertas
+
+- Upload e validação de documentos.
+- *Parsing* de arquivos PDF, DOCX e imagens.
+- Estruturação de documentos.
+- Geração de blocos semânticos.
+- Geração de *embeddings*.
+- Recuperação RAG e geração de respostas.
+- Operações de banco de dados e rotas de API.
 
 ### Executar Testes
 
@@ -369,8 +435,10 @@ pytest
 ### Executar Testes com Cobertura
 
 ```bash
-pytest --cov=app
+pytest --cov=app --cov-report=term-missing
 ```
+
+O relatório de cobertura identifica linhas executadas e não testadas, ajudando a orientar futuras melhorias na suíte de testes.
 
 ---
 
@@ -423,6 +491,47 @@ As credenciais do Jenkins são usadas para configurar as conexões com o banco d
 | Health Check | API `/health` | Não configurado |
 
 Ambos os pipelines ajudam a manter a qualidade do código e a automatizar a entrega da aplicação por meio de fluxos containerizados.
+
+---
+
+## ⚠️ Limitações e Melhorias Futuras
+
+Embora o DocFlow AI implemente um fluxo completo de ingestão de documentos e RAG, algumas limitações ainda permanecem.
+
+### Limitações Atuais
+
+- **Dependência de IA Externa:** A estruturação de documentos, a criação de *embeddings* e a geração de respostas dependem dos serviços Gemini da Google.
+- **Restrições do Plano Gratuito:** Cotas de API e limites de uso restringem a capacidade de processamento e a quantidade de requisições que podem ser atendidas.
+- **Disponibilidade de Interface (Frontend):** Atualmente, o projeto concentra-se na funcionalidade de *backend* e expõe suas capacidades através de endpoints de API REST e documentação do Swagger.
+- **Specialização de Modelos:** A implementação atual baseia-se em modelos gerais do Gemini, em vez de um modelo especificamente adaptado para documentos educacionais.
+
+### Melhorias Futuras
+
+- Desenvolver um *frontend* dedicado para tornar o processamento de documentos e a busca semântica acessíveis por meio de uma interface visual.
+- Avaliar modelos de linguagem e de *embeddings* de código aberto para reduzir a dependência de provedores de IA externos.
+- Explorar infraestrutura de IA auto-hospedada para maior controle sobre processamento, disponibilidade e custos.
+- Especializar ainda mais o processamento e a recuperação de documentos para casos de uso educacionais.
+- Expandir os testes automatizados e melhorar a cobertura de caminhos de integração de IA menos testados.
+
+Essas melhorias visam evoluir o DocFlow AI para uma plataforma mais independente e especializada no processamento de documentos educacionais.
+
+---
+
+## 📚 Principais Aprendizados
+
+O desenvolvimento do DocFlow AI proporcionou experiência prática com diversos conceitos de engenharia de *backend* e integração de IA.
+
+Os principais aprendizados incluem:
+
+- Integrar Modelos de Linguagem de Grande Escala e serviços de *embeddings* em aplicações de *backend*.
+- Processar documentos heterogêneos usando extração de texto e OCR.
+- Transformar informações não estruturadas em dados estruturados.
+- Projetar estratégias especializadas de *chunking* semântico.
+- Implementar busca por similaridade vetorial com PostgreSQL e pgvector.
+- Construir pipelines de RAG que combinam recuperação semântica com a geração de respostas contextuais.
+- Organizar responsabilidades relacionadas à IA em serviços de *backend* fáceis de manter.
+
+O projeto fortaleceu minha compreensão de como conceitos tradicionais de engenharia de *backend* podem ser combinados com inteligência artificial generativa para resolver problemas práticos.
 
 ---
 
@@ -492,7 +601,7 @@ Instale as dependências:
 pip install -r requirements.txt
 ```
 
-Certifique-se de que o PostgreSQL está rodando e a extensão pgvector está disponível. Configure as variáveis de ambiente no arquivo `.env` e execute a configuração do banco de dados:
+Certifique-se de que o PostgreSQL está rodando e a extensão pgvector está disponível. Configure as variáveis de ambiente no arquivo `.env`, e execute a configuração do banco de dados:
 
 ```bash
 python -m app.db.create_tables

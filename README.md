@@ -174,6 +174,59 @@ This separation makes the application easier to maintain, test and extend.
 
 ---
 
+## 🧩 Technical Decisions and Challenges
+
+During development, several technical decisions shaped the architecture and document processing workflow.
+
+### Framework Selection — FastAPI
+
+FastAPI was selected for its straightforward integration with Python-based AI services and its support for building structured REST APIs.
+
+Its Pydantic-based validation and automatic API documentation also help maintain clear contracts between application components.
+
+### Database and Vector Search — PostgreSQL + pgvector
+
+PostgreSQL was chosen to manage relational application data, while pgvector extends the same database with vector storage and similarity search capabilities.
+
+This approach allows the application to manage document metadata, structured content, semantic chunks and embeddings without introducing a separate vector database.
+
+### Specialized Semantic Chunking
+
+Document content is divided into six specialized categories:
+
+- Lesson Plans
+- Activities
+- Assessments
+- BNCC Skills
+- Recommendations
+- Insights
+
+This separation allows retrieval to be filtered by pedagogical purpose. For example, a recommendation query can prioritize recommendation-related chunks instead of retrieving unrelated lesson plan content.
+
+The goal is to improve retrieval relevance by providing more specific context to the RAG pipeline.
+
+### Document Extraction and OCR
+
+The application uses specialized parsers for PDF, DOCX and image files.
+
+For PDFs, PyMuPDF extracts existing text. When a page has no extractable text, the parser renders the page and applies OCR using Tesseract.
+
+Image files are processed through Pillow and pytesseract, while DOCX files are handled with python-docx.
+
+This approach supports both digitally generated and scanned documents.
+
+### Context-Grounded RAG Generation
+
+The RAG pipeline separates information retrieval from response generation.
+
+User questions are converted into embeddings and matched against stored document chunks using cosine similarity. Retrieved content is then assembled into the context provided to Gemini.
+
+The generation prompt instructs the model to rely on the retrieved context and indicate when the available information is insufficient.
+
+This approach helps reduce responses that are disconnected from the documents stored in the system.
+
+---
+
 ## 🗄️ Database Design
 
 DocFlow AI uses **PostgreSQL**, hosted on [Neon](https://neon.tech/), with **SQLAlchemy ORM** for database interaction and **pgvector** for vector storage and semantic similarity search.
@@ -348,29 +401,44 @@ DocFlow AI exposes RESTful endpoints through FastAPI, organized into document pr
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing and Code Coverage
 
-The project includes automated tests to validate important parts of the application.
+DocFlow AI includes automated unit and integration tests using Pytest to validate document processing, AI integrations, semantic retrieval and API behavior.
 
-Test coverage includes:
+### Test Coverage
 
-- Unit tests.
-- Integration tests.
-- API route tests.
-- Embedding-related tests.
-- OCR-related tests.
+The latest test execution reported:
 
-### Run Tests
+| Metric | Result |
+|---|---:|
+| Overall Code Coverage | 90% |
+| Tests Passed | 31 |
+| Statements Analyzed | 542 |
+| Execution Time | 34.32 seconds |
+
+### Areas Covered
+
+- Document upload and validation.
+- PDF, DOCX and image parsing.
+- Document structuring.
+- Semantic chunk generation.
+- Embedding generation.
+- RAG retrieval and response generation.
+- Database operations and API routes.
+
+### Running Tests
 
 ```bash
 pytest
 ```
 
-### Run Tests with Coverage
+### Running Tests with Coverage
 
 ```bash
-pytest --cov=app
+pytest --cov=app --cov-report=term-missing
 ```
+
+The coverage report identifies executed and untested lines, helping guide future improvements to the test suite.
 
 ---
 
@@ -423,6 +491,47 @@ Jenkins credentials are used to configure database connections securely.
 | Health Check | API `/health` | Not configured |
 
 Both pipelines help maintain code quality and automate application delivery through containerized workflows.
+
+---
+
+## ⚠️ Limitations and Future Improvements
+
+Although DocFlow AI implements a complete document ingestion and RAG workflow, some limitations remain.
+
+### Current Limitations
+
+- **External AI Dependency:** Document structuring, embeddings and response generation depend on Google's Gemini services.
+- **Free-Tier Restrictions:** API quotas and usage limits restrict processing capacity and the number of requests that can be handled.
+- **Frontend Availability:** The project currently focuses on backend functionality and exposes its capabilities through REST API endpoints and Swagger documentation.
+- **Model Specialization:** The current implementation relies on general-purpose Gemini models rather than a model specifically adapted to educational documents.
+
+### Future Improvements
+
+- Develop a dedicated frontend to make document processing and semantic search accessible through a visual interface.
+- Evaluate open-source language and embedding models to reduce dependency on external AI providers.
+- Explore self-hosted AI infrastructure for greater control over processing, availability and costs.
+- Further specialize document processing and retrieval for educational use cases.
+- Expand automated tests and improve coverage of less-tested AI integration paths.
+
+These improvements aim to evolve DocFlow AI into a more independent and specialized platform for educational document processing.
+
+---
+
+## 📚 Key Learnings
+
+Developing DocFlow AI provided practical experience with several concepts in backend engineering and AI integration.
+
+Key learnings include:
+
+- Integrating Large Language Models and embedding services into backend applications.
+- Processing heterogeneous documents using text extraction and OCR.
+- Transforming unstructured information into structured data.
+- Designing specialized semantic chunking strategies.
+- Implementing vector similarity search with PostgreSQL and pgvector.
+- Building RAG pipelines that combine semantic retrieval with contextual response generation.
+- Organizing AI-related responsibilities into maintainable backend services.
+
+The project strengthened my understanding of how traditional backend engineering concepts can be combined with generative AI to solve practical problems.
 
 ---
 
